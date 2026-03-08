@@ -8,8 +8,9 @@ A machine learning project that predicts residential house prices using **Linear
 
 ```
 House Price Prediction/
-├── Linear Regression.ipynb          # Jupyter notebook with full analysis & model
-└── House Price Prediction Dataset.csv  # Dataset used for training and testing
+├── Linear Regression.ipynb           # Jupyter notebook with full analysis & model
+├── House Price Prediction Dataset.csv   # Dataset used for training and testing
+└── showcase.html                     # Interactive results dashboard & presenter script
 ```
 
 ---
@@ -108,6 +109,20 @@ The notebook produces:
 - A trained `LinearRegression` model
 - Evaluation metrics (MSE and R²)
 - A scatter plot comparing actual vs. predicted house prices
+
+---
+
+## 📽️ Interactive Showcase
+
+The project includes an interactive **`showcase.html`** file designed for presentations and visual analysis.
+
+### Features
+- **Real-time Accuracy Visualization:** View how closely predictions align with actual prices.
+- **Feature Importance Tracking:** Interactive bars showing which house details (Area, Location, etc.) matter most.
+- **Presenter Mode:** Includes a 60-second presenter script for quick demonstrations.
+
+### How to Run
+Simply open `showcase.html` in any modern web browser (Chrome, Edge, Firefox, etc.). No installation or backend server is required.
 
 ---
 

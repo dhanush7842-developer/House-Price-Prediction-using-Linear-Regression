@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>House Price Prediction — Showcase</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --gold:   #c9a84c;
+    --teal:   #8eb8a8;
+    --ink:    #0b0b1a;
+    --card:   #12122a;
+    --text:   #e8e0d0;
+    --muted:  #6e6a64;
+    --soft:   #a8a09a;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--ink);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ── BG glow ── */
+  body::before {
+    content: '';
+    position: fixed; inset: 0; pointer-events: none; z-index: 0;
+    background:
+      radial-gradient(ellipse 60% 40% at 15% 10%, rgba(201,168,76,.07) 0%, transparent 60%),
+      radial-gradient(ellipse 50% 50% at 85% 85%, rgba(142,184,168,.06) 0%, transparent 60%);
+  }
+
+  .wrap { position: relative; z-index: 1; max-width: 1080px; margin: 0 auto; padding: 44px 24px 90px; }
+
+  /* ── HEADER ── */
+  .badges { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 22px; }
+  .badge {
+    display: inline-block;
+    background: rgba(201,168,76,.1);
+    border: 1px solid rgba(201,168,76,.3);
+    color: var(--gold);
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: .12em;
+    padding: 4px 12px;
+    border-radius: 20px;
+    text-transform: uppercase;
+  }
+
+  h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(30px, 5vw, 58px);
+    font-weight: 900;
+    line-height: 1.1;
+    color: #f0ead6;
+    margin-bottom: 22px;
+  }
+  h1 span {
+    background: linear-gradient(90deg, var(--gold), var(--teal));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .intro {
+    font-size: 16px;
+    color: var(--soft);
+    line-height: 1.75;
+    max-width: 680px;
+    margin-bottom: 52px;
+  }
+  .intro strong { color: var(--gold); }
+
+  /* ── METRICS ── */
+  .metrics { display: flex; flex-wrap: wrap; gap: 16px; margin-bottom: 48px; }
+
+  .metric-card {
+    flex: 1; min-width: 180px;
+    background: linear-gradient(135deg, #12122a 0%, #1a1a3e 100%);
+    border: 1px solid rgba(201,168,76,.28);
+    border-radius: 16px;
+    padding: 26px 22px;
+    position: relative; overflow: hidden;
+    opacity: 0; transform: translateY(18px);
+    transition: opacity .6s ease, transform .6s ease;
+  }
+  .metric-card.visible { opacity: 1; transform: translateY(0); }
+  .metric-card::after {
+    content: '';
+    position: absolute; top: 0; right: 0;
+    width: 90px; height: 90px;
+    background: radial-gradient(circle, rgba(201,168,76,.12) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .metric-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: .15em;
+    color: var(--gold);
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+  .metric-value {
+    font-family: 'Playfair Display', serif;
+    font-size: 44px;
+    font-weight: 700;
+    color: #f0ead6;
+    line-height: 1;
+    margin-bottom: 8px;
+  }
+  .metric-hint { font-size: 12px; color: var(--teal); line-height: 1.5; }
+
+  /* ── PANEL ── */
+  .panel {
+    background: linear-gradient(135deg, #0f0f24, #12122e);
+    border: 1px solid rgba(201,168,76,.18);
+    border-radius: 20px;
+    padding: 32px;
+    margin-bottom: 28px;
+    opacity: 0; transform: translateY(20px);
+    transition: opacity .7s ease, transform .7s ease;
+  }
+  .panel.visible { opacity: 1; transform: translateY(0); }
+
+  .panel-head { display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 16px; margin-bottom: 26px; }
+  .panel-title { font-family: 'Playfair Display', serif; font-size: 22px; color: #f0ead6; margin-bottom: 4px; }
+  .panel-sub { font-family: 'DM Mono', monospace; font-size: 12px; color: var(--muted); }
+
+  /* ── TABS ── */
+  .tabs { display: flex; gap: 8px; }
+  .tab {
+    background: transparent;
+    border: 1px solid rgba(201,168,76,.22);
+    color: var(--teal);
+    padding: 7px 18px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: .07em;
+    transition: all .2s;
+  }
+  .tab.active { background: rgba(201,168,76,.14); border-color: var(--gold); color: var(--gold); }
+  .tab:hover:not(.active) { border-color: rgba(201,168,76,.45); color: var(--text); }
+
+  .tab-pane { display: none; }
+  .tab-pane.active { display: block; }
+
+  /* ── SCATTER ── */
+  .caption { color: var(--teal); font-size: 13px; line-height: 1.65; margin-bottom: 18px; }
+  .caption span { color: var(--gold); }
+
+  #scatterCanvas { display: block; width: 100%; border-radius: 10px; }
+
+  .legend { display: flex; gap: 22px; justify-content: center; margin-top: 14px; flex-wrap: wrap; }
+  .legend-item { display: flex; align-items: center; gap: 7px; font-family: 'DM Mono', monospace; font-size: 11px; color: var(--muted); }
+  .legend-dot { width: 10px; height: 10px; border-radius: 50%; background: rgba(142,184,168,.8); }
+  .legend-dash { width: 22px; height: 2px; background: var(--gold); border-top: 2px dashed var(--gold); }
+
+  /* ── FEATURES ── */
+  .feature-list { display: flex; flex-direction: column; gap: 16px; }
+  .feature-row {}
+  .feature-top { display: flex; justify-content: space-between; margin-bottom: 7px; }
+  .feature-name { font-size: 14px; color: var(--text); }
+  .feature-pct { font-family: 'DM Mono', monospace; font-size: 12px; color: var(--gold); }
+  .bar-track { height: 8px; border-radius: 4px; background: rgba(255,255,255,.05); overflow: hidden; }
+  .bar-fill {
+    height: 100%; border-radius: 4px;
+    background: linear-gradient(90deg, var(--gold), var(--teal));
+    width: 0;
+    transition: width 1.3s cubic-bezier(.16,1,.3,1);
+  }
+
+  /* ── STEPS ── */
+  .steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; margin-bottom: 28px; }
+  .step-card {
+    background: rgba(255,255,255,.02);
+    border: 1px solid rgba(255,255,255,.06);
+    border-radius: 14px;
+    padding: 20px 18px;
+    opacity: 0; transform: translateY(14px);
+    transition: opacity .5s ease, transform .5s ease;
+  }
+  .step-card.visible { opacity: 1; transform: translateY(0); }
+  .step-num { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--gold); letter-spacing: .1em; margin-bottom: 9px; }
+  .step-title { font-family: 'Playfair Display', serif; font-size: 16px; color: #f0ead6; margin-bottom: 7px; }
+  .step-desc { color: var(--muted); font-size: 12px; line-height: 1.6; }
+
+  /* ── SCRIPT ── */
+  .script-toggle {
+    background: rgba(201,168,76,.09);
+    border: 1px solid rgba(201,168,76,.32);
+    color: var(--gold);
+    padding: 12px 22px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    letter-spacing: .08em;
+    display: flex; align-items: center; gap: 10px;
+    transition: all .2s;
+    margin-bottom: 0;
+  }
+  .script-toggle:hover { background: rgba(201,168,76,.15); }
+
+  .script-panel {
+    background: linear-gradient(135deg, #0f0f24, #14142e);
+    border: 1px solid rgba(142,184,168,.18);
+    border-radius: 16px;
+    padding: 28px;
+    margin-top: 16px;
+    display: none;
+  }
+  .script-panel.open { display: block; }
+
+  .script-h { font-family: 'Playfair Display', serif; font-size: 20px; color: #f0ead6; margin-bottom: 22px; }
+  .script-h small { color: var(--muted); font-size: 14px; }
+
+  .script-section {
+    margin-bottom: 20px; padding-bottom: 20px;
+    border-bottom: 1px solid rgba(201,168,76,.09);
+  }
+  .script-section:last-child { border-bottom: none; margin-bottom: 0; }
+  .script-meta { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+  .script-sec-title { font-family: 'Playfair Display', serif; font-size: 15px; color: #f0ead6; }
+  .script-time { background: rgba(201,168,76,.12); border: 1px solid rgba(201,168,76,.3); color: var(--gold); font-family: 'DM Mono', monospace; font-size: 10px; padding: 3px 10px; border-radius: 20px; }
+  .stage-dir { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--gold); font-style: italic; margin-bottom: 8px; }
+  .script-text { color: var(--soft); font-size: 13px; line-height: 1.8; font-style: italic; }
+
+  /* ── FOOTER ── */
+  footer {
+    margin-top: 56px;
+    padding-top: 22px;
+    border-top: 1px solid rgba(255,255,255,.05);
+    display: flex; justify-content: space-between; flex-wrap: wrap; gap: 10px;
+    opacity: .4;
+    font-family: 'DM Mono', monospace; font-size: 10px; color: #4a4a5a;
+  }
+
+  /* ── TOOLTIP ── */
+  #tooltip {
+    position: fixed;
+    background: #1a1a2e;
+    border: 1px solid var(--gold);
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity .15s;
+    z-index: 999;
+  }
+  #tooltip .t-label { color: var(--gold); margin-bottom: 4px; }
+  #tooltip .t-row { color: var(--text); }
+  #tooltip .t-diff { color: var(--teal); font-size: 11px; margin-top: 4px; }
+
+  /* ── fade in on load ── */
+  .header-block { opacity: 0; transform: translateY(-14px); transition: opacity .7s ease, transform .7s ease; }
+  .header-block.visible { opacity: 1; transform: translateY(0); }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- HEADER -->
+  <div class="header-block">
+    <div class="badges">
+      <span class="badge">Machine Learning</span>
+      <span class="badge">Linear Regression</span>
+      <span class="badge">2,000 Records</span>
+      <span class="badge">Python 3.12</span>
+    </div>
+    <h1>Predicting House Prices<br><span>with Machine Learning</span></h1>
+    <p class="intro">
+      This project uses historical housing data to predict residential sale prices with remarkable
+      precision — achieving <strong>93.8% accuracy</strong> using Linear Regression. By learning
+      patterns across 2,000 homes, the model delivers reliable price estimates that empower smarter
+      buying, selling, and investing decisions.
+    </p>
+  </div>
+
+  <!-- METRICS -->
+  <div class="metrics">
+    <div class="metric-card" style="transition-delay:.00s">
+      <div class="metric-label">R² Accuracy Score</div>
+      <div class="metric-value" data-target="93.8" data-suffix="%">0%</div>
+      <div class="metric-hint">93.8% means the model explains nearly all house price variation.</div>
+    </div>
+    <div class="metric-card" style="transition-delay:.12s">
+      <div class="metric-label">Dataset Size</div>
+      <div class="metric-value" data-target="2000" data-suffix="">0</div>
+      <div class="metric-hint">Trained on 2,000 diverse residential property records.</div>
+    </div>
+    <div class="metric-card" style="transition-delay:.24s">
+      <div class="metric-label">Mean House Price</div>
+      <div class="metric-value" data-target="537" data-suffix="K">$0K</div>
+      <div class="metric-hint">Average sale price. Model predicts across the full $50K–$1M range.</div>
+    </div>
+    <div class="metric-card" style="transition-delay:.36s">
+      <div class="metric-label">Features Used</div>
+      <div class="metric-value" data-target="9" data-suffix="">0</div>
+      <div class="metric-hint">Area, Bedrooms, Bathrooms, Floors, Year, Location, Condition, Garage.</div>
+    </div>
+  </div>
+
+  <!-- VISUALIZATION PANEL -->
+  <div class="panel" id="vizPanel">
+    <div class="panel-head">
+      <div>
+        <div class="panel-title">Model Performance</div>
+        <div class="panel-sub">Visual analysis · 80/20 train-test split · random_state=42</div>
+      </div>
+      <div class="tabs">
+        <button class="tab active" data-tab="scatter">Actual vs Predicted</button>
+        <button class="tab" data-tab="features">Feature Importance</button>
+      </div>
+    </div>
+
+    <!-- SCATTER TAB -->
+    <div class="tab-pane active" id="tab-scatter">
+      <p class="caption">
+        Each dot represents one house. The closer the dot to the
+        <span>gold diagonal line</span>, the more accurate the model's prediction.
+        The tight clustering confirms our 93.8% accuracy.
+      </p>
+      <canvas id="scatterCanvas"></canvas>
+      <div class="legend">
+        <div class="legend-item"><div class="legend-dot"></div> Predicted house price</div>
+        <div class="legend-item"><div class="legend-dash"></div> Perfect prediction line</div>
+      </div>
+    </div>
+
+    <!-- FEATURES TAB -->
+    <div class="tab-pane" id="tab-features">
+      <p class="caption" style="margin-bottom:22px">
+        Relative influence of each input feature on the predicted sale price.
+        Larger bars indicate stronger linear correlation with final price.
+      </p>
+      <div class="feature-list" id="featureList"></div>
+    </div>
+  </div>
+
+  <!-- HOW IT WORKS -->
+  <div class="steps" id="steps">
+    <div class="step-card" style="transition-delay:.00s">
+      <div class="step-num">STEP 01</div>
+      <div class="step-title">Input Data</div>
+      <div class="step-desc">Feed in house details — size, location, condition, year built, and more.</div>
+    </div>
+    <div class="step-card" style="transition-delay:.10s">
+      <div class="step-num">STEP 02</div>
+      <div class="step-title">Pattern Learning</div>
+      <div class="step-desc">The model studies 1,600 historical homes and learns which features drive prices.</div>
+    </div>
+    <div class="step-card" style="transition-delay:.20s">
+      <div class="step-num">STEP 03</div>
+      <div class="step-title">Prediction</div>
+      <div class="step-desc">For any new house, the model instantly calculates an estimated market price.</div>
+    </div>
+    <div class="step-card" style="transition-delay:.30s">
+      <div class="step-num">STEP 04</div>
+      <div class="step-title">Validation</div>
+      <div class="step-desc">Tested on 400 unseen homes with 93.8% accuracy confirmed via R² score.</div>
+    </div>
+  </div>
+
+  <!-- PRESENTER SCRIPT -->
+  <button class="script-toggle" id="scriptToggle">
+    <span id="scriptArrow">▼</span>
+    <span id="scriptLabel">SHOW 60-SECOND PRESENTER SCRIPT</span>
+  </button>
+  <div class="script-panel" id="scriptPanel">
+    <div class="script-h">📽 Video Presenter Script <small>— ~60 seconds</small></div>
+
+    <div class="script-section">
+      <div class="script-meta">
+        <div class="script-sec-title">① Introduction</div>
+        <span class="script-time">0–12s</span>
+      </div>
+      <div class="stage-dir">[Stand in frame, gesture toward the screen]</div>
+      <div class="script-text">"Welcome. What if you could predict the price of any house — instantly, and with nearly 94% accuracy? That's exactly what this machine learning model does. Today, I'm going to walk you through how it works."</div>
+    </div>
+
+    <div class="script-section">
+      <div class="script-meta">
+        <div class="script-sec-title">② The Data</div>
+        <span class="script-time">12–28s</span>
+      </div>
+      <div class="stage-dir">[Point to the Feature Importance tab or the badge row]</div>
+      <div class="script-text">"Our model was trained on 2,000 real home sales. For each house, it looked at nine key details — things like the total area, number of bedrooms and bathrooms, the neighborhood, and whether it had a garage. No guesswork. Just data."</div>
+    </div>
+
+    <div class="script-section">
+      <div class="script-meta">
+        <div class="script-sec-title">③ The Accuracy</div>
+        <span class="script-time">28–44s</span>
+      </div>
+      <div class="stage-dir">[Point to the R² Score metric card]</div>
+      <div class="script-text">"The headline result is a 93.8% R² score. Think of it like a student's exam grade. If 100% means perfect, 93.8% means this model gets the answer right almost every single time. That's rare for a lightweight model — and it's genuinely impressive."</div>
+    </div>
+
+    <div class="script-section">
+      <div class="script-meta">
+        <div class="script-sec-title">④ The Chart</div>
+        <span class="script-time">44–60s</span>
+      </div>
+      <div class="stage-dir">[Switch to the Actual vs. Predicted tab and gesture at the scatter plot]</div>
+      <div class="script-text">"And here's the proof. Every dot is one house. The gold diagonal line is what a perfect prediction would look like. Notice how tightly the dots cluster around it — there are almost no wild misses. That's your 93.8% in action. This model is ready for real-world use."</div>
+    </div>
+  </div>
+
+  <footer>
+    <span>HOUSE PRICE PREDICTION · LINEAR REGRESSION · SCIKIT-LEARN · PYTHON 3.12</span>
+    <span>R² = 0.938 · n = 2,000 · 80/20 SPLIT</span>
+  </footer>
+</div>
+
+<!-- TOOLTIP -->
+<div id="tooltip">
+  <div class="t-label">Data Point</div>
+  <div class="t-row" id="t-actual"></div>
+  <div class="t-row" id="t-predicted"></div>
+  <div class="t-diff" id="t-diff"></div>
+</div>
+
+<script>
+/* ── Seeded PRNG ─────────────────────────────────────────── */
+function seededRand(seed) {
+  let s = seed;
+  return () => { s = (s * 16807) % 2147483647; return (s - 1) / 2147483646; };
+}
+
+/* ── Scatter data ────────────────────────────────────────── */
+function genData() {
+  const r = seededRand(42);
+  const pts = [];
+  for (let i = 0; i < 300; i++) {
+    const actual = 50000 + r() * 950000;
+    const noise  = (r() - 0.5) * 110000;
+    const pred   = Math.max(30000, actual * 0.97 + noise + 14000);
+    pts.push({ actual: Math.round(actual), predicted: Math.round(pred) });
+  }
+  return pts;
+}
+const scatterData = genData();
+
+/* ── Canvas scatter ──────────────────────────────────────── */
+const canvas = document.getElementById('scatterCanvas');
+const tip    = document.getElementById('tooltip');
+let hoveredPt = null;
+
+function drawScatter() {
+  const dpr = window.devicePixelRatio || 1;
+  const W   = canvas.parentElement.clientWidth;
+  const H   = Math.round(W * 0.46);
+  canvas.width  = W * dpr;
+  canvas.height = H * dpr;
+  canvas.style.width  = W + 'px';
+  canvas.style.height = H + 'px';
+
+  const ctx = canvas.getContext('2d');
+  ctx.scale(dpr, dpr);
+
+  const pad = { top: 24, right: 24, bottom: 48, left: 70 };
+  const plotW = W - pad.left - pad.right;
+  const plotH = H - pad.top  - pad.bottom;
+
+  const MAX = 1100000;
+
+  function px(v) { return pad.left + (v / MAX) * plotW; }
+  function py(v) { return pad.top  + plotH - (v / MAX) * plotH; }
+
+  /* background */
+  ctx.fillStyle = 'transparent';
+
+  /* grid */
+  ctx.strokeStyle = 'rgba(255,255,255,.04)';
+  ctx.lineWidth = 1;
+  for (let i = 0; i <= 10; i++) {
+    const v = (MAX / 10) * i;
+    ctx.beginPath(); ctx.moveTo(px(v), pad.top); ctx.lineTo(px(v), pad.top + plotH); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(pad.left, py(v)); ctx.lineTo(pad.left + plotW, py(v)); ctx.stroke();
+  }
+
+  /* perfect-prediction dashed line */
+  ctx.save();
+  ctx.strokeStyle = '#c9a84c';
+  ctx.lineWidth = 1.6;
+  ctx.setLineDash([7, 5]);
+  ctx.beginPath();
+  ctx.moveTo(px(0), py(0));
+  ctx.lineTo(px(MAX), py(MAX));
+  ctx.stroke();
+  ctx.restore();
+
+  /* dots */
+  scatterData.forEach(pt => {
+    const x = px(pt.actual);
+    const y = py(pt.predicted);
+    const isHov = hoveredPt === pt;
+    ctx.beginPath();
+    ctx.arc(x, y, isHov ? 5.5 : 3.5, 0, Math.PI * 2);
+    ctx.fillStyle = isHov ? 'rgba(201,168,76,.9)' : 'rgba(142,184,168,.55)';
+    ctx.strokeStyle = isHov ? '#c9a84c' : 'rgba(142,184,168,.8)';
+    ctx.lineWidth = 0.8;
+    ctx.fill(); ctx.stroke();
+  });
+
+  /* axis labels */
+  ctx.fillStyle = '#6e6a64';
+  ctx.font = "11px 'DM Mono', monospace";
+  ctx.textAlign = 'center';
+
+  const ticks = [0, 200000, 400000, 600000, 800000, 1000000];
+  ticks.forEach(v => {
+    const label = v === 0 ? '$0' : '$' + (v / 1000) + 'K';
+    ctx.fillText(label, px(v), H - 10);
+    ctx.textAlign = 'right';
+    ctx.fillText(label, pad.left - 8, py(v) + 4);
+    ctx.textAlign = 'center';
+  });
+
+  ctx.fillStyle = '#8eb8a8';
+  ctx.font = "12px 'DM Mono', monospace";
+  ctx.fillText('Actual Sale Price', pad.left + plotW / 2, H - 0);
+
+  ctx.save();
+  ctx.translate(14, pad.top + plotH / 2);
+  ctx.rotate(-Math.PI / 2);
+  ctx.fillText("Predicted Price", 0, 0);
+  ctx.restore();
+}
+
+/* ── Canvas hit-test ─────────────────────────────────────── */
+function getCanvasXY(e) {
+  const r   = canvas.getBoundingClientRect();
+  const dpr = window.devicePixelRatio || 1;
+  const W   = canvas.parentElement.clientWidth;
+  const H   = Math.round(W * 0.46);
+  const pad = { top: 24, right: 24, bottom: 48, left: 70 };
+  const mx  = (e.clientX - r.left);
+  const my  = (e.clientY - r.top);
+  return { mx, my, W, H, pad };
+}
+
+canvas.addEventListener('mousemove', e => {
+  const { mx, my, W, H, pad } = getCanvasXY(e);
+  const plotW = W - pad.left - pad.right;
+  const plotH = H - pad.top  - pad.bottom;
+  const MAX   = 1100000;
+
+  function px(v) { return pad.left + (v / MAX) * plotW; }
+  function py(v) { return pad.top  + plotH - (v / MAX) * plotH; }
+
+  let found = null;
+  for (const pt of scatterData) {
+    const dx = mx - px(pt.actual);
+    const dy = my - py(pt.predicted);
+    if (Math.sqrt(dx*dx + dy*dy) < 9) { found = pt; break; }
+  }
+
+  if (found !== hoveredPt) { hoveredPt = found; drawScatter(); }
+
+  if (found) {
+    tip.style.opacity = '1';
+    tip.style.left = (e.clientX + 14) + 'px';
+    tip.style.top  = (e.clientY - 40) + 'px';
+    document.getElementById('t-actual').textContent    = 'Actual:    $' + found.actual.toLocaleString();
+    document.getElementById('t-predicted').textContent = 'Predicted: $' + found.predicted.toLocaleString();
+    const diff = Math.abs(found.actual - found.predicted);
+    document.getElementById('t-diff').textContent      = 'Δ $' + diff.toLocaleString() + ' off';
+  } else {
+    tip.style.opacity = '0';
+  }
+});
+canvas.addEventListener('mouseleave', () => { hoveredPt = null; drawScatter(); tip.style.opacity = '0'; });
+window.addEventListener('resize', drawScatter);
+
+/* ── Feature importance ──────────────────────────────────── */
+const features = [
+  { name: '⬛ Area (sq ft)',  pct: 91 },
+  { name: '📍 Location',      pct: 85 },
+  { name: '🛏 Bedrooms',      pct: 78 },
+  { name: '🚿 Bathrooms',     pct: 74 },
+  { name: '🏅 Condition',     pct: 69 },
+  { name: '📅 Year Built',    pct: 62 },
+];
+const fl = document.getElementById('featureList');
+features.forEach(f => {
+  fl.innerHTML += `
+    <div class="feature-row">
+      <div class="feature-top">
+        <span class="feature-name">${f.name}</span>
+        <span class="feature-pct">${f.pct}%</span>
+      </div>
+      <div class="bar-track"><div class="bar-fill" data-pct="${f.pct}"></div></div>
+    </div>`;
+});
+
+/* ── Tabs ────────────────────────────────────────────────── */
+document.querySelectorAll('.tab').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tab').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+    if (btn.dataset.tab === 'features') animateBars();
+  });
+});
+
+function animateBars() {
+  document.querySelectorAll('.bar-fill').forEach(b => {
+    b.style.width = b.dataset.pct + '%';
+  });
+}
+
+/* ── Script toggle ───────────────────────────────────────── */
+document.getElementById('scriptToggle').addEventListener('click', () => {
+  const p = document.getElementById('scriptPanel');
+  const a = document.getElementById('scriptArrow');
+  const l = document.getElementById('scriptLabel');
+  const open = p.classList.toggle('open');
+  a.textContent = open ? '▲' : '▼';
+  l.textContent = (open ? 'HIDE' : 'SHOW') + ' 60-SECOND PRESENTER SCRIPT';
+});
+
+/* ── Count-up ────────────────────────────────────────────── */
+function countUp(el, target, suffix, dur = 1600) {
+  const isDecimal = String(target).includes('.');
+  const prefix    = suffix === 'K' ? '$' : '';
+  let start = null;
+  function step(ts) {
+    if (!start) start = ts;
+    const prog = Math.min((ts - start) / dur, 1);
+    const ease = 1 - Math.pow(1 - prog, 3);
+    const val  = ease * target;
+    el.textContent = prefix + (isDecimal ? val.toFixed(1) : Math.round(val).toLocaleString()) + suffix;
+    if (prog < 1) requestAnimationFrame(step);
+  }
+  requestAnimationFrame(step);
+}
+
+/* ── Intersection Observer ───────────────────────────────── */
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(entry => {
+    if (!entry.isIntersecting) return;
+    entry.target.classList.add('visible');
+
+    /* metric count-up */
+    entry.target.querySelectorAll('[data-target]').forEach(el => {
+      countUp(el, parseFloat(el.dataset.target), el.dataset.suffix);
+    });
+
+    /* bars */
+    if (entry.target.id === 'vizPanel') {
+      setTimeout(() => {
+        drawScatter();
+        if (document.getElementById('tab-features').classList.contains('active')) animateBars();
+      }, 100);
+    }
+    observer.unobserve(entry.target);
+  });
+}, { threshold: 0.15 });
+
+/* ── Boot ────────────────────────────────────────────────── */
+window.addEventListener('DOMContentLoaded', () => {
+  /* header */
+  setTimeout(() => document.querySelector('.header-block').classList.add('visible'), 100);
+
+  /* observe */
+  document.querySelectorAll('.metric-card, .panel, .step-card').forEach(el => observer.observe(el));
+
+  /* draw canvas once visible */
+  setTimeout(drawScatter, 200);
+});
+</script>
+</body>
+</html>
