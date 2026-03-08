@@ -195,46 +195,7 @@
   .step-title { font-family: 'Playfair Display', serif; font-size: 16px; color: #f0ead6; margin-bottom: 7px; }
   .step-desc { color: var(--muted); font-size: 12px; line-height: 1.6; }
 
-  /* ── SCRIPT ── */
-  .script-toggle {
-    background: rgba(201,168,76,.09);
-    border: 1px solid rgba(201,168,76,.32);
-    color: var(--gold);
-    padding: 12px 22px;
-    border-radius: 10px;
-    cursor: pointer;
-    font-family: 'DM Mono', monospace;
-    font-size: 12px;
-    letter-spacing: .08em;
-    display: flex; align-items: center; gap: 10px;
-    transition: all .2s;
-    margin-bottom: 0;
-  }
-  .script-toggle:hover { background: rgba(201,168,76,.15); }
 
-  .script-panel {
-    background: linear-gradient(135deg, #0f0f24, #14142e);
-    border: 1px solid rgba(142,184,168,.18);
-    border-radius: 16px;
-    padding: 28px;
-    margin-top: 16px;
-    display: none;
-  }
-  .script-panel.open { display: block; }
-
-  .script-h { font-family: 'Playfair Display', serif; font-size: 20px; color: #f0ead6; margin-bottom: 22px; }
-  .script-h small { color: var(--muted); font-size: 14px; }
-
-  .script-section {
-    margin-bottom: 20px; padding-bottom: 20px;
-    border-bottom: 1px solid rgba(201,168,76,.09);
-  }
-  .script-section:last-child { border-bottom: none; margin-bottom: 0; }
-  .script-meta { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
-  .script-sec-title { font-family: 'Playfair Display', serif; font-size: 15px; color: #f0ead6; }
-  .script-time { background: rgba(201,168,76,.12); border: 1px solid rgba(201,168,76,.3); color: var(--gold); font-family: 'DM Mono', monospace; font-size: 10px; padding: 3px 10px; border-radius: 20px; }
-  .stage-dir { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--gold); font-style: italic; margin-bottom: 8px; }
-  .script-text { color: var(--soft); font-size: 13px; line-height: 1.8; font-style: italic; }
 
   /* ── FOOTER ── */
   footer {
@@ -371,51 +332,6 @@
       <div class="step-num">STEP 04</div>
       <div class="step-title">Validation</div>
       <div class="step-desc">Tested on 400 unseen homes with 93.8% accuracy confirmed via R² score.</div>
-    </div>
-  </div>
-
-  <!-- PRESENTER SCRIPT -->
-  <button class="script-toggle" id="scriptToggle">
-    <span id="scriptArrow">▼</span>
-    <span id="scriptLabel">SHOW 60-SECOND PRESENTER SCRIPT</span>
-  </button>
-  <div class="script-panel" id="scriptPanel">
-    <div class="script-h">📽 Video Presenter Script <small>— ~60 seconds</small></div>
-
-    <div class="script-section">
-      <div class="script-meta">
-        <div class="script-sec-title">① Introduction</div>
-        <span class="script-time">0–12s</span>
-      </div>
-      <div class="stage-dir">[Stand in frame, gesture toward the screen]</div>
-      <div class="script-text">"Welcome. What if you could predict the price of any house — instantly, and with nearly 94% accuracy? That's exactly what this machine learning model does. Today, I'm going to walk you through how it works."</div>
-    </div>
-
-    <div class="script-section">
-      <div class="script-meta">
-        <div class="script-sec-title">② The Data</div>
-        <span class="script-time">12–28s</span>
-      </div>
-      <div class="stage-dir">[Point to the Feature Importance tab or the badge row]</div>
-      <div class="script-text">"Our model was trained on 2,000 real home sales. For each house, it looked at nine key details — things like the total area, number of bedrooms and bathrooms, the neighborhood, and whether it had a garage. No guesswork. Just data."</div>
-    </div>
-
-    <div class="script-section">
-      <div class="script-meta">
-        <div class="script-sec-title">③ The Accuracy</div>
-        <span class="script-time">28–44s</span>
-      </div>
-      <div class="stage-dir">[Point to the R² Score metric card]</div>
-      <div class="script-text">"The headline result is a 93.8% R² score. Think of it like a student's exam grade. If 100% means perfect, 93.8% means this model gets the answer right almost every single time. That's rare for a lightweight model — and it's genuinely impressive."</div>
-    </div>
-
-    <div class="script-section">
-      <div class="script-meta">
-        <div class="script-sec-title">④ The Chart</div>
-        <span class="script-time">44–60s</span>
-      </div>
-      <div class="stage-dir">[Switch to the Actual vs. Predicted tab and gesture at the scatter plot]</div>
-      <div class="script-text">"And here's the proof. Every dot is one house. The gold diagonal line is what a perfect prediction would look like. Notice how tightly the dots cluster around it — there are almost no wild misses. That's your 93.8% in action. This model is ready for real-world use."</div>
     </div>
   </div>
 
@@ -624,15 +540,7 @@ function animateBars() {
   });
 }
 
-/* ── Script toggle ───────────────────────────────────────── */
-document.getElementById('scriptToggle').addEventListener('click', () => {
-  const p = document.getElementById('scriptPanel');
-  const a = document.getElementById('scriptArrow');
-  const l = document.getElementById('scriptLabel');
-  const open = p.classList.toggle('open');
-  a.textContent = open ? '▲' : '▼';
-  l.textContent = (open ? 'HIDE' : 'SHOW') + ' 60-SECOND PRESENTER SCRIPT';
-});
+
 
 /* ── Count-up ────────────────────────────────────────────── */
 function countUp(el, target, suffix, dur = 1600) {
